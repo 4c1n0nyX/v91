@@ -82,3 +82,9 @@ class AsignacionForm(forms.ModelForm):
     class Meta:
         model = Asignacion
         fields = ('inventario', 'departamento', 'descripcion', 'articulo', 'cantidad', 'observaciones')
+
+#FORMULARIO DE ASIGNADO - ACTUALIZADO
+class AsignacionEForm(forms.ModelForm):
+    class Meta:
+        model = Asignacion
+        fields = ('inventario', 'departamento', 'descripcion', 'articulo', 'cantidad', 'observaciones')
