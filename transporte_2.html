@@ -1,0 +1,425 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<!-- ======================= Cabecera ================== -->
+<head>
+    <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <title>Compras</title>
+      <link rel="stylesheet" type="text/css" href="{% static 'css/administracion.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
+      <link rel="icon" type="image/x-icon" href="{% static '/img/favicon.icon' %}">
+</head>
+<body>
+<!-- ======================= Menú Principal ================== -->
+<div class="sidebar">
+    <div class="logo"></div>
+    <ul class="menu">
+        <li class="active">
+            <a href="#">
+                    <img style="width:20px; height: 30px;" src="{% static '/img/favicon.png' %}">
+                </span>
+                <span class="title">S.U.C.I</span>
+            </a>
+        </li>
+        <li>
+            <a href="../../administracion"  class="activadoa">
+                <i class="fa-solid fa-user-tie"></i>
+                <span>Inicio</span>
+            </a>
+        <li class="activado">
+            <a href="../../administracion/adminbienes">
+                <i class="fa-solid fa-business-time"></i>
+                <span>Bienes</span>
+            </a>
+        </li>
+        <li>
+            <a href="../../administracion/compras">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span>Compras</span>
+            </a>
+        </li>
+        <li class="dropdown__list">
+            <a href="#" class="dropdown__link">
+                <i class="fa-solid fa-car-side"></i>
+                <span class="dropdown__span">Vehículos</span>
+                <input type="checkbox" class="dropdown__check">
+            </a>
+            <div class="dropdown__content">
+                <ul class="dropdown__sub">
+                    <li class="dropdown__li">
+                        <a href="../consumible" class="dropdown__anchor">Consumible</a>
+                    </li>
+                    <li class="dropdown__li">
+                        <a href="../averia" class="dropdown__anchor">Avería</a>
+                    </li>
+                    <li class="dropdown__li">
+                        <a href="../mobiliario" class="dropdown__anchor">Mobiliario</a>
+                    </li>
+                    <li class="dropdown__li">
+                        <a href="../vehiculos" class="dropdown__anchor">Vehículos</a>
+                    </li>
+                    </li>
+                </ul>
+            </div>
+        <li class="logout.new">
+            <a href="../../modulos">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Volver</span>
+            </a>
+        </li>
+    </ul>
+</div>
+<!-- ==================== Menú usuario =================== -->
+<div class="main--content">
+    <div class="header--wrapper">
+        <div class="header--title">
+        <h2>Compras</h2>
+    </div>
+    <div class="user--info">
+        <img src="{% static 'img/ven911.jpg' %}">
+        <h2 class="title">V{{request.user.username}}</h2>
+        <li class="butun" style="list-style: none;">
+            <a title="Cerrar sesión" href="{% url 'logout' %}" style="text-decoration: none;">
+                <label class="switch">
+                    <i class="fa-solid fa-power-off" style="color: #b2a5a5;"></i>
+                </label>
+            </a>
+        </li>
+    </div>
+</div>
+<!-- ======================= Botones ======================  -->
+<div class="tabular--wrapper">
+    <h3 class="main--title"></h3>
+    <div class="user--info">
+        <form id="formConsulta" method="GET" action="{% url 'compras_consultar' accion='consultar' %}">
+            <div class="searh--box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" name="name" id="inputname" placeholder="Buscar">
+                <button type="submit" class="btn">Consultar</button>
+<button type="button" class="btn" onclick="location.href='{% url 'compras' %}'">Limpiar</button>      
+            </div>
+        </form>
+        <button id="myBtn" class="bt">Agregar</button>
+<!-- ======================= Paginator ======================  -->
+<center>
+    <section class="ulpgcds-pager">
+        <ul class="ulpgcds-pager-ul">
+            {%if comprass.has_previous %} {# whether the previous page exists #}
+                <li class="ulpgcds-pageritem ulpgcds-pageritem--prev">
+                    <a class="pagination__link" href="?page={{comprass.previous_page_number}}" title="Ir a la página anterior"><span class="visually-hidden">Anterior</span></a>
+                </li>
+            {% endif %}
+            {% for i in comprass.paginator.page_range %}
+                {% if comprass.number == i %}
+                    <li class="ulpgcds-pageritem ulpgcds-pageritem--is-active">
+                        <a class="pagination__link" href="?page={{comprass.number}}">{{ i }}</a>
+                    </li>
+                {% else %}
+                    <li><a href="?page={{ i }}">{{ i }}</a></li>
+                {% endif %}
+            {% endfor %}
+            {%if comprass.has_next %} {# whether the next page exists #}
+                <li class="ulpgcds-pageritem ulpgcds-pageritem--next">
+                    <a class="pagination__link" href="?page={{comprass.next_page_number}}" title="Ir a la página siguiente">
+                        <span class="visually-hidden">Siguiente</span>
+                    </a>
+                </li>
+            {% endif %}
+            </ul>
+            </section>
+        </center>
+    </div>
+</div>
+<!-- ======================= Formulario ======================  -->       
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close" style="margin-top: -10px;">&times;</span>
+        <div class="modal-header">
+            <h2 align="center">Agregar Compra</h2>
+        </div>
+        <br>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">    
+                <div class="form-items">
+                    <label>Producto</label>
+                    <br>
+                    <input type="text" class="form-control" name="{{form23.producto.html_name}}" placeholder="Ingrese el producto" required>
+                </div>
+                <div class="form-items">
+                    <label>Serial</label>
+                    <br>
+                    <input type="text" class="form-control" name="{{ form23.serial.html_name }}" placeholder="Ingrese el serial" required>
+                </div>
+                <div class="form-items">
+                    <label>Marca</label>
+                    <br>
+                    <input type="text" class="form-control" name="{{ form23.marca.html_name }}" placeholder="Ingrese el serial" required>
+                </div>
+                <div class="form-items">
+                    <label>Modelo</label>
+                    <br>
+                    <input type="text" class="form-control" name="{{ form23.modelo.html_name }}" placeholder="Ingrese el serial" required>
+                </div>
+                <div class="form-items">
+                    <label>Fecha de adquisición</label>
+                    <br>
+                    <input type="date" class="form-control" name="{{ form23.fecha_adq.html_name }}" value="{{ archivo.date|date:"Y-m-d" }}" required>
+                </div>
+                <div class="form-items">
+                    <label>Número de orden</label>
+                    <br>
+                    <input type="number" class="form-control" name="{{ form23.numero_orden.html_name }}" placeholder="Ingrese la cantidad" required>
+                </div>
+                <div class="form-items">
+                    <label>Valor</label>
+                    <br>
+                    <input type="number" class="form-control" name="{{ form23.valor.html_name }}" placeholder="Ingrese el valor" required>
+                </div>
+                <div class="form-items">
+<label>Cantidad</label>
+                    <br>
+                    <input type="number" class="form-control" name="{{form23.cantidad.html_name}}" placeholder="Ingrese la cantidad" required>
+                </div>
+                <div class="form-items">
+                    <label>Proveedor</label>
+                    <br>
+                    <input type="text" class="form-control" name="{{form23.proveedor.html_name}}" placeholder="Ingrese" required>
+                </div>
+                <div class="form-items">
+                    <label>Ubicación</label>
+                    <br>
+                    <select name="{{form23.ubicacion.html_name}}" class="form-control">
+                        <option value="" selected>Seleccione</option>
+                        <option value="Tecnología">Tecnología</option>
+                        <option value="Planificacion, Organización y Presupuesto">Planificacion, Organización y Presupuesto</option>
+                        <option value="Administracion">Administracion</option>
+                    </select>
+                </div>
+                <div class="form-items">
+                    <label>Garantía</label>
+                    <br>
+                    <input type="date" class="form-control" name="{{ form23.garantia.html_name }}" value="{{ archivo.garantia|date:"Y-m-d" }}" required>
+                </div>
+            </div>
+            <br>
+            <div align="center">
+                <input type="submit" class="bnt" value="Enviar" style="width: 90px;">
+            </div>
+        </form>
+    </div>
+</div>
+<!-- ===================== Tabla ====================  -->
+<div class="tabular--wrapper" style="margin-top: 10px; padding-top: 10px;">
+    <div class="table-container">            
+        <table>
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Serial</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Fecha de adquisición</th>
+                    <th>Número de orden</th>
+                    <th>Valor</th>
+                    <th>Cantidad</th>
+                    <th>Proveedor</th>
+                    <th>Ubicación</th>
+                    <th>Garantía</th>
+                    <th>Acciones</th>
+                </tr>
+                <tbody> 
+                    {% for archivo in comprass %}
+                        <tr>
+                            <td>{{ archivo.producto }}</td>
+                            <td>{{ archivo.serial }}</td>
+                            <td>{{ archivo.marca }}</td>
+                            <td>{{ archivo.modelo }}</td>
+                            <td>{{ archivo.fecha_adq }}</td>
+                            <td>{{ archivo.numero_orden }}</td>
+                            <td>{{ archivo.valor }}</td>
+                            <td>{{ archivo.cantidad }}</td>
+                            <td>{{ archivo.proveedor }}</td>
+                            <td>{{ archivo.ubicacion }}</td>
+                            <td>{{ archivo.garantia }}</td>
+                            <td>
+                                <a href="#" title="Editar" id="myBtnn3{{ archivo.id }}" style="color: black;"><i class="fa-solid fa-pen-to-square"></i></a>
+                                &nbsp;&nbsp;&nbsp;
+                                <a href="#" title="Eliminar" id="myBtnn2{{ archivo.id }}" style="color: black;"><i class="fa-solid fa-trash"></i></a>
+                                    <div id="myModall3{{ archivo.id }}" class="modal">
+                                    <div class="modal-content">
+                                        <span class="closee3{{ archivo.id }} close" style="margin-top: -10px;">&times;</span>
+                                        <div class="modal-header">
+                                            <h2 align="center">Modificar Normativa</h2>
+                                        </div>
+                                        <br>
+                                        <form method="POST" action="compras/update/{{ archivo.pk }}">
+{% csrf_token %}
+                                            <div class="form-group">
+                                                <div class="form-items">
+                                                    <label>Producto</label>
+                                                    <br>
+                                                    <input type="text" class="form-control" name="{{formcom.producto.html_name}}" placeholder="Ingrese el producto" value="{{ archivo.producto }}" required>
+                                                </div>
+                                                <div class="form-items">
+                                                    <label>Serial</label>
+                                                    <br>
+                                                    <input type="text" class="form-control" name="{{ formcom.serial.html_name }}" placeholder="Ingrese el serial" value="{{ archivo.serial }}" required>
+                                                </div>
+                                                <div class="form-items">
+                                                    <label>Marca</label>
+                                                    <br>
+                                                    <input type="text" class="form-control" name="{{ formcom.marca.html_name }}" placeholder="Ingrese la marca" value="{{ archivo.marca }}" required>
+                                                </div>
+                                                <div class="form-items">
+                                                    <label>Modelo</label>
+                                                    <br>
+                                                    <input type="text" class="form-control" name="{{ formcom.modelo.html_name }}" placeholder="Ingrese el modelo" value="{{ archivo.modelo }}" required>
+                                                </div>
+                                                <div class="form-items">
+                                                    <label>Fecha de adquisición</label>
+                                                    <br>
+                                                    <input type="date" class="form-control" name="{{ formcom.fecha_adq.html_name }}" value="{{ archivo.date|date:"Y-m-d" }}" required>
+                                                </div>
+                                                <div class="form-items">
+                                                    <label>Número de orden</label>
+                                                    <br>
+                                                    <input type="number" class="form-control" name="{{ formcom.numero_orden.html_name }}" placeholder="Ingrese el número de orden" value="{{ archivo.numero_orden }}" required>
+                                                </div>
+                                                <div class="form-items">
+                                                    <label>Valor</label>
+                                                    <br>
+                                                    <input type="number" class="form-control" name="{{ formcom.valor.html_name }}" placeholder="Ingrese el valor" value="{{ archivo.valor }}" required>
+                                                </div>
+                                                <div class="form-items">
+                                                    <label>Cantidad</label>
+                                                    <br>
+                                                    <input type="number" class="form-control" name="{{formcom.cantidad.html_name}}" placeholder="Ingrese la cantidad" value="{{ archivo.cantidad }}" required>
+                                                </div>
+                                                <div class="form-items">
+                                                    <label>Proveedor</label>
+                                                    <br>
+<input type="text" class="form-control" name="{{formcom.proveedor.html_name}}" placeholder="Ingrese el proveedor" value="{{ archivo.proveedor }}" required>
+                                                </div>
+                                                <div class="form-items">
+                                                    <label>Ubicación</label>
+                                                    <br>
+                                                    <select name="{{formcom.ubicacion.html_name}}" class="form-control">
+                                                        <option value="" selected>Seleccione</option>
+                                                        <option value="{{ archivo.ubicacion }}">{{ archivo.ubicacion }}</option>
+                                                        <option value="Tecnología">Tecnología</option>
+                                                        <option value="Planificacion, Organización y Presupuesto">Planificacion, Organización y Presupuesto</option>
+                                                        <option value="Administracion">Administracion</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-items">
+                                                    <label>Garantía</label>
+                                                    <br>
+                                                    <input type="date" class="form-control" name="{{ formcom.garantia.html_name }}" value="{{ archivo.garantia|date:"Y-m-d" }}" required>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div align="center">
+                                                <input type="submit" class="bnt" value="Enviar" style="width: 90px;">
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <script>
+                                    var modall3{{ archivo.id }} = document.getElementById("myModall3{{ archivo.id }}");
+                                    var btnn3{{ archivo.id }} = document.getElementById("myBtnn3{{ archivo.id }}");
+                                    var spann3{{ archivo.id }} = document.getElementsByClassName("closee3{{ archivo.id }}")[0];
+                                    btnn3{{ archivo.id }}.onclick = function() {
+                                        modall3{{ archivo.id }}.style.visibility = "visible";
+                                        modall3{{ archivo.id }}.style.opacity = 1;
+                                    }
+                                
+                                    spann3{{ archivo.id }}.onclick = function() {
+                                        modall3{{ archivo.id }}.style.visibility = "hidden";
+                                        modall3{{ archivo.id }}.style.opacity = 0;
+                                    }
+                                
+                                    window.onclick = function(event) {
+                                        if (event.target == modall3{{ archivo.id }}) {
+                                            modall3{{ archivo.id }}.style.visibility = "hidden";
+                                            modall3{{ archivo.id }}.style.opacity = 0;
+                                        }
+                                    }
+                                </script>
+                                    <div id="myModall2{{ archivo.id }}" class="modal">
+                                    <div class="modal-content">
+                                        <span class="closee2{{ archivo.id }} close" style="margin-top: -10px;">&times;</span>
+                                        <div class="modal-header">
+<form action="compras/delete/{{ archivo.id }}" method="POST">
+                                                {% csrf_token %}
+                                                <br>
+                                                <div align="center">
+                                                    <h2>¿Estás seguro de eliminar este registro?</h2>
+                                                </div>
+                                                <br><br>
+                                                <div align="center">
+                                                    <input type="submit" class="bnt" value="Eliminar" style="width: 90px;">
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <br>
+                                    </div>
+                                </div>
+                                <script>
+                                    var modall2{{ archivo.id }} = document.getElementById("myModall2{{ archivo.id }}");
+                                    var btnn2{{ archivo.id }} = document.getElementById("myBtnn2{{ archivo.id }}");
+                                    var spann2{{ archivo.id }} = document.getElementsByClassName("closee2{{ archivo.id }}")[0];
+                                    btnn2{{ archivo.id }}.onclick = function() {
+                                        modall2{{ archivo.id }}.style.visibility = "visible";
+                                        modall2{{ archivo.id }}.style.opacity = 1;
+                                    }
+            
+                                    spann2{{ archivo.id }}.onclick = function() {
+                                        modall2{{ archivo.id }}.style.visibility = "hidden";
+                                        modall2{{ archivo.id }}.style.opacity = 0;
+                                    }
+            
+                                    window.onclick = function(event) {
+                                        if (event.target == modall{{ archivo.id }}) {
+                                            modall2{{ archivo.id }}.style.visibility = "hidden";
+                                            modall2{{ archivo.id }}.style.opacity = 0;
+                                        }
+                                    }
+                                </script>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </thead>
+        </table>
+    </div>
+</div>
+<!-- =========== Scripts =========  -->
+<script src="{% static '/js/main.js' %}"></script>
+<script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+        <script>
+            var modal = document.getElementById("myModal");
+            var btn = document.getElementById("myBtn");
+            var span = document.getElementsByClassName("close")[0];
+            btn.onclick = function() {
+                modal.style.visibility = "visible";
+                modal.style.opacity = 1;
+            }
+
+            span.onclick = function() {
+                modal.style.visibility = "hidden";
+                modal.style.opacity = 0;
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.visibility = "hidden";
+                    modal.style.opacity = 0;
+                }
+            }
+        </script>
+    </body>
+</html>
